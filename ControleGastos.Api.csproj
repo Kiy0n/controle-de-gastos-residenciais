@@ -8,7 +8,22 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.9">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.9" />
     <PackageReference Include="Microsoft.OpenApi" Version="2.7.5" />
+  </ItemGroup>
+  <ItemGroup>
+    <!--
+      Supressão temporária do warning NU1903 baseada em análise de risco.
+      A vulnerabilidade em SQLitePCLRaw.lib.e_sqlite3 depende de consultas especialmente manipuladas,
+      cenário não aplicável a esta API, que utiliza apenas consultas geradas internamente pelo EF Core.
+      Remover esta supressão quando o EF Core atualizar a dependência transitiva para uma versão corrigida.
+      Referência: https://github.com/advisories/GHSA-2m69-gcr7-jv3q
+    -->
+    <NuGetAuditSuppress Include="https://github.com/advisories/GHSA-2m69-gcr7-jv3q" />
   </ItemGroup>
 
 </Project>
