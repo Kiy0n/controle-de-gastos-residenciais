@@ -1,0 +1,13 @@
+@baseUrl = http://localhost:5044
+
+### Listar todas as pessoas
+GET {{baseUrl}}/Pessoas
+
+### Criar uma pessoa
+POST {{baseUrl}}/Pessoas
+Content-Type: application/json
+
+{
+  "nome": "João Silva",
+  "idade": 30
+}
