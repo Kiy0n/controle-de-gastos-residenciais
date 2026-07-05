@@ -11,3 +11,6 @@ Content-Type: application/json
   "nome": "João Silva",
   "idade": 30
 }
+
+### Deletar pessoa
+DELETE {{baseUrl}}/Pessoas/1

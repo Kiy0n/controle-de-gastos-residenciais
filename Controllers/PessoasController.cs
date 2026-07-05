@@ -23,6 +23,7 @@ public class PessoasController : ControllerBase
 
         return Ok(pessoas);
     }
+    
     [HttpPost]
     public async Task<ActionResult<Pessoa>> PostPessoa(Pessoa pessoa)
     {
@@ -30,5 +31,21 @@ public class PessoasController : ControllerBase
         await _context.SaveChangesAsync();
 
         return CreatedAtAction(nameof(GetPessoas), new { id = pessoa.Id }, pessoa);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeletePessoa(int id)
+    {
+        var pessoa = await _context.Pessoas.FindAsync(id);
+
+        if (pessoa == null)
+        {
+            return NotFound();
+        }
+
+        _context.Pessoas.Remove(pessoa);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
     }
 }
