@@ -1,11 +1,14 @@
 using ControleGastos.Api.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddOpenApi();
-builder.Services.AddControllers();
+// Permite que o enum seja serializado/deserializado como texto no JSON (Receita/Despesa), 
+// tornando a API mais legível e evitando exposição de valores numéricos no contrato HTTP.
+builder.Services.AddControllers().AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
 // Lê a connection string do appsettings.json
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' não encontrada.");
