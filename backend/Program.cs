@@ -16,6 +16,16 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 // Registra o AppDbContext utilizando SQLite
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connectionString));
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("PermitirFrontend", policy =>
+    {
+       policy.WithOrigins("http://localhost:5173") // origem do vite
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -25,6 +35,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("PermitirFrontend");
 
 app.MapControllers();
 
