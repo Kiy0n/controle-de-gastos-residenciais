@@ -40,7 +40,7 @@ Content-Type: application/json
   "descricao": "Mesada",
   "valor": 50.00,
   "tipo": "Receita",
-  "pessoaId": 2
+  "pessoaId": 3
 }
 
 ### 6. DESPESA para MENOR de idade (espera 201)
@@ -53,3 +53,6 @@ Content-Type: application/json
   "tipo": "Despesa",
   "pessoaId": 2
 }
+
+### Consultar totais
+GET {{baseUrl}}/Relatorios/totais
