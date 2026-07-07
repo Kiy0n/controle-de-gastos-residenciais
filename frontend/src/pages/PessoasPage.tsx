@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import type { Pessoa } from "../types";
-import { getPessoas, criarPessoa } from "../services/api";
+import { getPessoas, criarPessoa, deletarPessoa } from "../services/api";
 
 export function PessoasPage() {
   // Lista de pessoas
@@ -59,6 +59,24 @@ export function PessoasPage() {
     }
   }
 
+  // Deleta uma pessoa
+  async function handleDeletar(id: number) {
+    try {
+      await deletarPessoa(id);
+      
+      const dados = await getPessoas();
+      setPessoas(dados);
+
+      setErro(null);
+    } catch (e) {
+      if (e instanceof Error) {
+        setErro(e.message);
+      } else {
+        setErro("Erro ao excluir pessoa.");
+      }
+    }
+  }
+
   if (carregando) return <p>Carregando...</p>;
   if (erro) return <p>Erro: {erro}</p>;
 
@@ -87,7 +105,7 @@ export function PessoasPage() {
       <ul>
         {pessoas.map((pessoa) => (
           <li key={pessoa.id}>
-            {pessoa.nome} — {pessoa.idade} anos
+            {pessoa.nome} — {pessoa.idade} anos <button onClick={() => handleDeletar(pessoa.id)}>Deletar</button>
           </li>
         ))}
       </ul>
