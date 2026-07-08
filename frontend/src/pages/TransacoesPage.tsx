@@ -124,17 +124,20 @@ export function TransacoesPage() {
         <p>Nenhuma transação cadastrada.</p>
       ) : (
         <ul>
-          {transacoes.map((transacao) => (
-            <li key={transacao.id}>
-              <strong>{transacao.descricao}</strong>
-              <br />
-              Tipo: {transacao.tipo}
-              <br />
-              Valor: R$ {transacao.valor.toFixed(2)}
-              <br />
-              Pessoa ID: {transacao.pessoaId}
-            </li>
-          ))}
+          {transacoes.map((transacao) => {
+            const pessoa = pessoas.find((p) => p.id === transacao.pessoaId);
+            return (
+              <li key={transacao.id}>
+                <strong>{transacao.descricao}</strong>
+                <br />
+                Tipo: {transacao.tipo}
+                <br />
+                Valor: R$ {transacao.valor.toFixed(2)}
+                <br />
+                Pessoa: {pessoa?.nome}
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
