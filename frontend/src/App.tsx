@@ -1,3 +1,4 @@
+import "./App.css";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import { PessoasPage } from "./pages/PessoasPage";
 import { TransacoesPage } from "./pages/TransacoesPage";
