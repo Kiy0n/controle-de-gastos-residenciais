@@ -1,16 +1,16 @@
 # Controle de Gastos Residenciais
 
-API REST desenvolvida em ASP.NET Core como parte de um desafio técnico para uma vaga de estágio em Desenvolvimento C# .NET Full Stack.
+Aplicação full stack desenvolvida como parte de um desafio técnico para uma vaga de estágio em Desenvolvimento C# .NET Full Stack.
 
-O sistema permite cadastrar pessoas, registrar transações financeiras (receitas e despesas) e consultar relatórios com totais e saldos por pessoa.
+O sistema permite cadastrar pessoas, registrar transações financeiras (receitas e despesas) e consultar relatórios com totais e saldos por pessoa. O backend é uma API REST em ASP.NET Core e o frontend uma aplicação em React + TypeScript que consome essa API.
 
-> **Status:** Backend concluído e testado. Frontend em React + TypeScript será desenvolvido na próxima fase.
+> **Status:** Projeto concluído. Backend em ASP.NET Core e frontend em React + TypeScript implementados e integrados.
 
 ---
 
 # Funcionalidades
 
-* Cadastro de pessoas.
+* Cadastro de pessoas (com identificador único gerado automaticamente).
 * Cadastro de transações financeiras.
 * Listagem de pessoas.
 * Listagem de transações.
@@ -24,7 +24,6 @@ O sistema permite cadastrar pessoas, registrar transações financeiras (receita
 * Toda transação deve estar vinculada a uma pessoa existente.
 * Ao excluir uma pessoa, suas transações são removidas automaticamente (Cascade Delete).
 * O relatório apresenta:
-
   * Total de receitas por pessoa.
   * Total de despesas por pessoa.
   * Saldo individual.
@@ -46,7 +45,8 @@ O sistema permite cadastrar pessoas, registrar transações financeiras (receita
 
 * React
 * TypeScript
-* Vite *(em desenvolvimento)*
+* Vite
+* React Router
 
 ---
 
@@ -64,22 +64,34 @@ controle-gastos-residenciais/
 │   ├── Program.cs
 │   └── appsettings.json
 │
-├── frontend/          (em desenvolvimento)
+├── frontend/
+│   ├── src/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   ├── types.ts
+│   │   └── App.tsx
+│   └── package.json
 │
 └── README.md
 ```
 
-### Organização
+### Organização do backend
 
 * **Controllers** → Endpoints da API.
 * **Models** → Entidades do domínio.
-* **DTOs** → Objetos utilizados na comunicação da API.
+* **DTOs** → Objetos utilizados na comunicação da API (contrato HTTP).
 * **Data** → Contexto do Entity Framework Core.
 * **Migrations** → Histórico das alterações do banco de dados.
 
+### Organização do frontend
+
+* **pages** → Telas da aplicação (Pessoas, Transações, Relatórios).
+* **services** → Camada de comunicação com a API.
+* **types.ts** → Tipos TypeScript que espelham os contratos da API.
+
 ---
 
-# Como executar o projeto
+# Como executar o backend
 
 ## Pré-requisitos
 
@@ -124,7 +136,37 @@ A API ficará disponível em:
 http://localhost:5044
 ```
 
-Também é possível acessar a documentação da API pelo Swagger durante a execução.
+Durante a execução, o documento OpenAPI da API fica disponível em `http://localhost:5044/openapi/v1.json`.
+
+---
+
+# Como executar o frontend
+
+Entre na pasta do frontend:
+
+```bash
+cd frontend
+```
+
+Instale as dependências:
+
+```bash
+npm install
+```
+
+Crie um arquivo `.env` na raiz do frontend com a URL da API (use o `.env.example` como referência):
+
+```text
+VITE_API_BASE_URL=http://localhost:5044
+```
+
+Execute a aplicação:
+
+```bash
+npm run dev
+```
+
+O frontend ficará disponível em `http://localhost:5173`. Certifique-se de que o backend esteja em execução para que a integração funcione.
 
 ---
 
@@ -168,39 +210,49 @@ Durante o desenvolvimento foram adotadas algumas decisões de arquitetura visand
 
 ### Utilização de `decimal`
 
-Os valores financeiros são armazenados utilizando `decimal`, evitando problemas de precisão inerentes aos tipos de ponto flutuante (`float` e `double`).
+Os valores financeiros são armazenados utilizando `decimal`, evitando os erros de arredondamento inerentes aos tipos de ponto flutuante (`float` e `double`), que representam números em base binária e não conseguem representar certos valores decimais com exatidão.
 
 ### Utilização de Controllers
 
-A API foi desenvolvida utilizando Controllers do ASP.NET Core, por serem adequados para APIs REST tradicionais e oferecerem boa organização dos endpoints.
+A API foi desenvolvida utilizando Controllers do ASP.NET Core, por organizarem os endpoints por domínio (Pessoas, Transações, Relatórios) e serem adequados a APIs com múltiplas áreas distintas. Para uma API de endpoint único, Minimal API seria uma alternativa mais enxuta.
 
 ### Uso de DTOs
 
-As operações da API utilizam DTOs para separar o contrato HTTP das entidades do domínio, evitando expor diretamente as entidades do Entity Framework Core.
+As operações da API utilizam DTOs para separar o contrato HTTP das entidades do domínio. Isso evita expor as entidades do Entity Framework Core diretamente e previne problemas como ciclos de serialização causados pelas propriedades de navegação.
 
 ### Enum como texto no JSON
 
 Foi configurado o `JsonStringEnumConverter`, permitindo que o cliente envie e receba valores como `"Receita"` e `"Despesa"` em vez de valores numéricos, tornando o contrato da API mais legível.
 
+### Escolha do SQLite
+
+Foi utilizado o SQLite pela simplicidade: é um banco em arquivo único, sem necessidade de servidor dedicado, adequado ao escopo do desafio. A abstração do Entity Framework Core permite trocar o provedor de banco (por exemplo, para PostgreSQL ou SQL Server) com alterações mínimas no código.
+
 ### Cascade Delete
 
-O relacionamento entre Pessoa e Transação utiliza chave estrangeira com exclusão em cascata, garantindo a integridade referencial ao remover uma pessoa.
+O relacionamento entre Pessoa e Transação utiliza chave estrangeira com exclusão em cascata, configurada automaticamente pela convenção do EF Core (chave estrangeira obrigatória), garantindo a integridade referencial ao remover uma pessoa.
 
 ### Agregações realizadas no banco
 
-Os cálculos de receitas e despesas são executados diretamente pelo banco de dados através das consultas geradas pelo Entity Framework Core, reduzindo a quantidade de dados carregados em memória. Apenas o cálculo final do saldo é realizado na aplicação, sobre uma coleção pequena de pessoas.
+Os cálculos de receitas e despesas são executados diretamente pelo banco de dados através das consultas geradas pelo Entity Framework Core (LINQ traduzido para SQL), reduzindo a quantidade de dados carregados em memória. Apenas o cálculo final do saldo é realizado na aplicação, sobre uma coleção pequena de pessoas.
+
+### Supressão de aviso de vulnerabilidade (NU1903)
+
+O provedor SQLite do EF Core depende, de forma transitiva, do pacote nativo `SQLitePCLRaw.lib.e_sqlite3`, que possui uma vulnerabilidade conhecida (CVE-2025-6965) sem correção publicada na cadeia de pacotes no momento do desenvolvimento. Após análise, o aviso foi suprimido de forma cirúrgica, pois a falha (relacionada ao parsing de consultas de agregação específicas) não é explorável neste contexto, em que todas as consultas são geradas internamente pelo EF Core. A supressão está documentada no arquivo de projeto e deve ser removida quando uma versão corrigida for disponibilizada.
+
+### CORS
+
+O backend está configurado para permitir requisições apenas da origem do frontend (`http://localhost:5173`), em vez de liberar qualquer origem, mantendo a restrição de segurança que o CORS existe para garantir.
 
 ---
 
-# Próximas etapas
+# Melhorias futuras
 
-* Desenvolvimento do frontend em React + TypeScript.
-* Integração entre frontend e backend.
-* Configuração de CORS.
-* Refinamento da interface e experiência do usuário.
+* Autenticação e autorização de usuários.
+* Edição de transações.
 
 ---
 
 # Autor
 
-Projeto desenvolvido por **Gabriel R.** como desafio técnico de estudo e avaliação para vaga de estágio em Desenvolvimento C# .NET Full Stack.
+Projeto desenvolvido por **Gabriel R.** como desafio técnico para vaga de estágio em Desenvolvimento C# .NET Full Stack.
